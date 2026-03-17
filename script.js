@@ -150,7 +150,7 @@ function login(u, p) {
   currentUser = found;
   auth.classList.add('hidden');
   dashboard.classList.remove('hidden');
-  document.getElementById('welcome').textContent = `Welcome: ${found.user} (${found.role})`;
+  document.getElementById('welcome').textContent = `Welcome: ${found.user} (${found.role.charAt(0).toUpperCase() + found.role.slice(1)})`;
 
   if (found.role === 'staff') {
     accountsBtn.style.display = 'none';
@@ -298,9 +298,12 @@ function loadUsers() {
     if (currentUser.role === 'manager' && u.role === 'admin') return;
 
     const roleOptions = ['admin', 'manager', 'staff']
-      .filter(role => currentUser.role === 'admin' || role !== 'admin')
-      .map(role => `<option value="${role}" ${u.role === role ? 'selected' : ''}>${role}</option>`)
-      .join('');
+  .filter(role => currentUser.role === 'admin' || role !== 'admin')
+  .map(role => {
+    const label = role.charAt(0).toUpperCase() + role.slice(1);
+    return `<option value="${role}" ${u.role === role ? 'selected' : ''}>${label}</option>`;
+  })
+  .join('');
 
     table.innerHTML += `
       <tr>
