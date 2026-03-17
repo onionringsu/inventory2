@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Inventory Dashboard</title>
+<link rel="stylesheet" href="style.css">
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+</head>
+
+<body>
+
+<!-- Loading Screen -->
+<div id="loadingScreen" class="loading-screen">
+  <h1 class="loading-title">Mendoza's Bakeshop</h1>
+
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+
+  <p id="progressText">0%</p>
+</div>
+
+<!-- LOGIN / REGISTER -->
+<div id="auth" class="auth-wrapper hidden">
+
+  <form id="authForm" class="auth-card">
+
+    <h2 id="authTitle">Mendoza's Bakeshop</h2>
+
+    <input id="username" type="text" placeholder="Username" required>
+
+    <input id="password" type="password" placeholder="Password" required>
+
+    <button type="submit" id="authBtn">Login</button>
+
+    <p id="msg" class="msg"></p>
+
+  </form>
+
+</div>
+
+<!-- MAIN DASHBOARD -->
+<div id="dashboard" class="container hidden">
+
+  <!-- SIDEBAR -->
+  <aside id="sidebar" class="sidebar">
+
+    <div class="sidebar-top">
+      <h3 class="logo">Inventory</h3>
+
+      <button id="toggleSidebar" class="toggle-btn">
+        ☰
+      </button>
+    </div>
+
+    <nav class="menu">
+
+      <button class="menu-btn active" id="dashBtn" title="Dashboard">
+        <span class="icon">🍞</span>
+        <span class="text">Dashboard</span>
+      </button>
+
+      <button class="menu-btn" id="ingredientsBtn" title="Ingredients">
+      <span class="icon">🥣</span>
+      <span class="text">Ingredients</span>
+      </button>
+
+      <button class="menu-btn" id="productsBtn" title="Products">
+      <span class="icon">🥐</span>
+      <span class="text">Products</span>
+      </button>
+
+      <button class="menu-btn" id="deliveriesBtn" title="Deliveries">
+      <span class="icon">🚚</span>
+      <span class="text">Deliveries</span>
+      </button>
+
+      <button class="menu-btn" id="lapsesBtn" title="Lapses">
+      <span class="icon">⚠️</span>
+      <span class="text">Lapses</span>
+      </button>
+
+      <button class="menu-btn" id="movementBtn" title="Movement Log">
+      <span class="icon">📋</span>
+      <span class="text">Movement Log</span>
+      </button>
+
+      <button class="menu-btn" id="accountsBtn" title="Accounts">
+      <span class="icon">🧾</span>
+      <span class="text">Accounts</span>
+      </button>
+
+      <button class="menu-btn" id="settingsBtn" title="Settings">
+      <span class="icon">⚙️</span>
+      <span class="text">Settings</span>
+      </button>
+
+    </nav>
+
+    <div class="logout-wrapper">
+      <button class="menu-btn logout-btn" id="logoutBtn" title="Logout">
+        <span class="icon">☕</span>
+        <span class="text">Logout</span>
+      </button>
+    </div>
+
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="content">
+
+<!-- DASHBOARD -->
+<section id="dash">
+
+  <h2 id="welcome"></h2>
+
+  <div class="theme-card">
+    <div class="inventory-card">
+      <h3>Total Ingredients</h3>
+      <p id="dashIngredientsCount">0</p>
+    </div>
+
+    <div class="inventory-card">
+      <h3>Total Products</h3>
+      <p id="dashProductsCount">0</p>
+    </div>
+
+    <div class="inventory-card">
+      <h3>Low Stock Items</h3>
+      <p id="dashLowStockCount">0</p>
+    </div>
+
+    <div class="inventory-card">
+      <h3>Out of Stock</h3>
+      <p id="dashOutStockCount">0</p>
+    </div>
+  </div>
+
+  <div class="theme-card">
+    <div class="inventory-card">
+      <h3>Deliveries Today</h3>
+      <p id="dashDeliveriesCount">0</p>
+    </div>
+
+    <div class="inventory-card">
+      <h3>Lapses Today</h3>
+      <p id="dashLapsesCount">0</p>
+    </div>
+
+    <div class="inventory-card">
+      <h3>Total Lapse Cost</h3>
+      <p id="dashLapseCost">₱0.00</p>
+    </div>
+
+    <div class="inventory-card">
+      <h3>Movements Today</h3>
+      <p id="dashMovementsCount">0</p>
+    </div>
+  </div>
+
+  <div class="inventory-card" style="margin-top:20px;">
+    <h3>Alerts</h3>
+    <div id="dashAlerts">No alerts yet.</div>
+  </div>
+
+  <div class="inventory-card" style="margin-top:20px;">
+    <h3>Recent Activity</h3>
+    <table id="recentActivityTable">
+      <tr>
+  <th>Date</th>
+  <th>User</th>
+  <th>Item</th>
+  <th>Action</th>
+  <th>Details</th>
+</tr>
+    </table>
+  </div>
+
+</section>
+
+
+
+<!-- INGREDIENTS -->
+<section id="ingredients" class="hidden">
+
+  <h2>Ingredients Inventory</h2>
+
+  <div class="inventory-card">
+
+    <div class="add-product-row">
+
+      <input type="text" id="ingredientName" placeholder="Ingredient Name">
+
+      <input type="number" id="ingredientQty" placeholder="Stock Quantity">
+
+      <button id="addIngredientBtn">
+        Add Ingredient
+      </button>
+
+    </div>
+
+    <input
+      type="text"
+      id="searchIngredient"
+      placeholder="Search ingredient..."
+      style="margin-top:10px;padding:6px;width:100%;"
+    >
+
+    <table id="ingredientTable"></table>
+
+  </div>
+
+</section>
+
+
+
+<!-- PRODUCTS -->
+<section id="products" class="hidden">
+
+  <h2>Products</h2>
+
+  <div class="inventory-card">
+
+    <div class="add-product-row">
+
+      <input type="text" id="productName2" placeholder="Product Name">
+
+      <input type="number" id="productQty2" placeholder="Stock Quantity">
+
+      <button id="addProductBtn2">
+        Add Product
+      </button>
+
+    </div>
+
+    <input
+      type="text"
+      id="searchProduct2"
+      placeholder="Search product..."
+      style="margin-top:10px;padding:6px;width:100%;"
+    >
+
+    <table id="productTable"></table>
+
+  </div>
+
+</section>
+
+
+<!-- DELIVERIES -->
+<section id="deliveries" class="hidden">
+
+  <h2>Deliveries</h2>
+
+  <div class="inventory-card">
+
+    <div class="add-product-row">
+      <input type="text" id="deliveryItem" placeholder="Item name">
+      <input type="number" id="deliveryQty" placeholder="Quantity">
+      <button id="recordDeliveryBtn">
+        Record Delivery
+      </button>
+    </div>
+
+    <table id="deliveryTable"></table>
+
+  </div>
+
+</section>
+
+
+
+<!-- LAPSES -->
+<section id="lapses" class="hidden">
+
+  <h2>Lapses / Waste</h2>
+
+  <div class="inventory-card">
+
+    <div class="add-product-row">
+      <input type="text" id="lapseItem" placeholder="Item name">
+      <input type="number" id="lapseQty" placeholder="Quantity">
+      <input type="number" id="lapseCost" placeholder="Unit Cost">
+      <button id="recordLapseBtn">
+        Record Lapse
+      </button>
+    </div>
+
+    <table id="lapseTable"></table>
+
+  </div>
+
+</section>
+
+
+
+<!-- MOVEMENT LOG -->
+<section id="movement" class="hidden">
+
+  <h2>Inventory Movement Log</h2>
+
+  <table id="movementTable">
+
+    <tr>
+  <th>Date</th>
+  <th>User</th>
+  <th>Item</th>
+  <th>Type</th>
+  <th>Qty</th>
+  <th>Cost</th>
+</tr>
+
+  </table>
+
+</section>
+
+
+
+<!-- ACCOUNTS -->
+<section id="accounts" class="hidden">
+
+  <h2>Account Management</h2>
+
+  <div class="inventory-card" style="margin-bottom:20px;">
+
+    <h3>Create Account</h3>
+
+    <div class="add-product-row">
+
+      <input type="text" id="newUserName" placeholder="Username">
+
+      <input type="password" id="newUserPass" placeholder="Password">
+
+      <select id="newUserRole">
+        <option value="staff">Staff</option>
+        <option value="manager">Manager</option>
+        <option value="admin">Admin</option>
+      </select>
+
+      <button id="createUserBtn">
+        Create Account
+      </button>
+
+    </div>
+
+    <p id="accountMsg" class="msg"></p>
+
+  </div>
+
+  <div class="inventory-card" style="margin-bottom:20px;">
+    <h3>Admin Data Controls</h3>
+    <p style="margin-bottom:12px;">Use these carefully. These actions affect saved records.</p>
+
+    <div class="theme-card">
+      <button id="clearInventoryBtn" class="delete-product-btn">
+        Clear Inventory Data
+      </button>
+
+      <button id="resetAllDataBtn" class="delete-product-btn">
+        Reset All System Data
+      </button>
+    </div>
+  </div>
+  
+  <div class="inventory-card">
+    <table id="userTable"></table>
+  </div>
+
+</section>
+
+
+
+<!-- SETTINGS -->
+<section id="settings" class="hidden">
+
+  <h2>Display Settings</h2>
+
+  <div class="theme-card">
+
+    <button id="lightTheme">
+      Light Theme
+    </button>
+
+    <button id="darkTheme">
+      Dark Theme
+    </button>
+
+  </div>
+
+</section>
+
+<!-- Notification -->
+<div id="notification" class="notification">
+  Action successful!
+</div>
+
+<script src="script.js" defer></script>
+
+</body>
+</html>
