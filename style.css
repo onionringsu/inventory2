@@ -903,3 +903,56 @@ body.dark #saleTable tbody tr:hover {
   cursor: pointer;
 }
 
+.loading-logo{
+  width: 300px;
+  height: auto;
+  margin-bottom: 14px;
+  animation: logoPop 0.9s ease-out;
+  filter: drop-shadow(0 0 12px rgba(217,119,69,0.4));
+}
+
+.loading-title{
+  animation: titleFade 1s ease-out;
+}
+
+.loading-tagline{
+  animation: taglineFade 1.2s ease-out;
+}
+
+/* 🔥 LOGO POP EFFECT */
+@keyframes logoPop{
+  0%{
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  60%{
+    opacity: 1;
+    transform: scale(1.1);
+  }
+  100%{
+    transform: scale(1);
+  }
+}
+
+/* smooth text fade */
+@keyframes titleFade{
+  0%{
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100%{
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes taglineFade{
+  0%{
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100%{
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
